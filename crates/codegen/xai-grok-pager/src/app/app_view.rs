@@ -3889,6 +3889,19 @@ impl AppView {
                 {
                     return outcome;
                 }
+                // The external profile may keep the active pane on
+                // scrollback while the prompt editor remains available.
+                // Route its shortcut before pane-specific handling.
+                if self.external_agent
+                    && let Event::Key(key) = ev
+                    && key.kind != KeyEventKind::Release
+                    && self
+                        .registry
+                        .matches_id(crate::actions::ActionId::EditPromptExternal, key)
+                    && matches!(self.active_view, ActiveView::Agent(_))
+                {
+                    return InputOutcome::Action(Action::EditPromptExternal);
+                }
                 let prompt_paging = !overlay_active && !self.screen_mode.is_minimal();
                 let ctrl_o_scope = match self.current_ui.ctrl_o_tool_expansion.as_deref() {
                     Some("all_tools") => {

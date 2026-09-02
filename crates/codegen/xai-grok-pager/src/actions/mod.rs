@@ -661,9 +661,10 @@ mod tests {
     }
 
     #[test]
-    fn screen_mode_registries_own_ctrl_g_and_share_ctrl_b() {
+    fn screen_mode_registries_own_ctrl_g_and_keep_external_editor() {
         let ctrl_b = KeyEvent::new(KeyCode::Char('b'), KeyModifiers::CONTROL);
         let ctrl_g = KeyEvent::new(KeyCode::Char('g'), KeyModifiers::CONTROL);
+        let alt_e = KeyEvent::new(KeyCode::Char('e'), KeyModifiers::ALT);
 
         for mode in [
             crate::app::ScreenMode::Fullscreen,
@@ -701,9 +702,14 @@ mod tests {
                 registry.find(ActionId::ToggleTasks).is_some(),
                 !mode.is_minimal()
             );
+            assert!(registry.find(ActionId::EditPromptExternal).is_some());
             assert_eq!(
-                registry.find(ActionId::EditPromptExternal).is_some(),
-                mode.is_minimal()
+                registry.lookup(&alt_e, When::PromptFocused),
+                if mode.is_minimal() {
+                    None
+                } else {
+                    Some(ActionId::EditPromptExternal)
+                }
             );
         }
     }

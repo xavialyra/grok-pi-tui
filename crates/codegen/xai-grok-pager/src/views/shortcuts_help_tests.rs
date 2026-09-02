@@ -404,7 +404,7 @@ fn build_entries_deduplicates_within_category() {
 }
 
 #[test]
-fn build_entries_show_mode_correct_ctrl_g_and_shared_ctrl_b() {
+fn build_entries_show_mode_correct_external_editor_and_shared_ctrl_b() {
     for mode in [
         crate::app::ScreenMode::Fullscreen,
         crate::app::ScreenMode::Inline,
@@ -450,21 +450,23 @@ fn build_entries_show_mode_correct_ctrl_g_and_shared_ctrl_b() {
             assert!(row(ActionId::FocusScrollback).is_some());
         }
 
-        let expected = if mode.is_minimal() {
+        let ctrl_g_action = if mode.is_minimal() {
             ActionId::EditPromptExternal
         } else {
             ActionId::ToggleTasks
         };
-        assert_eq!(agent_ctrl_g_rows, vec![expected]);
-        assert!(row(expected).is_some());
-        assert!(
-            row(if mode.is_minimal() {
-                ActionId::ToggleTasks
+        assert_eq!(agent_ctrl_g_rows, vec![ctrl_g_action]);
+        assert!(row(ctrl_g_action).is_some());
+        let editor = row(ActionId::EditPromptExternal).expect("external editor row");
+        assert_eq!(
+            editor.keys,
+            vec![if mode.is_minimal() {
+                crate::key!('g', CONTROL)
             } else {
-                ActionId::EditPromptExternal
-            })
-            .is_none()
+                crate::key!('e', ALT)
+            }]
         );
+        assert_eq!(row(ActionId::ToggleTasks).is_some(), !mode.is_minimal());
     }
 }
 

@@ -904,6 +904,26 @@ pub(super) fn default_actions(
         },
     ];
 
+    // Fullscreen/inline keep Ctrl+G for Tasks. Alt+E edits the ordinary
+    // prompt without taking over the scrollback Ctrl+E action.
+    if !screen_mode.is_minimal() {
+        actions.push(ActionDef {
+            id: ActionId::EditPromptExternal,
+            label: "edit prompt",
+            description: "Edit prompt in external editor",
+            default_key: key!('e', ALT),
+            alt_keys: vec![],
+            category: Category::Input,
+            context: When::PromptFocused,
+            hint_priority: None,
+            hint_key_display: None,
+            requires_confirmation: false,
+            long_help: Some(
+                "Opens the current prompt draft in $VISUAL or $EDITOR, falling back to vi when neither is set.\nSaving and closing the editor returns the updated text to the composer; it does not send the prompt.\nAvailable for ordinary attachment-free drafts.",
+            ),
+        });
+    }
+
     // Toggle terminal mouse reporting (mouse capture). Opt-in via
     // `[ui] mouse_reporting_toggle = true` in config.toml. Disabling capture
     // hands mouse selection back to the terminal for native click-drag
